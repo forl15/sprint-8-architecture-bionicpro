@@ -11,18 +11,17 @@ TABLE_NAME = "prosthesis_daily_report"
 
 
 def generate_source_data(**context):
-    """Имитирует CRM и сырые события телеметрии внутри DAG."""
     report_date = context["logical_date"].date()
     rng = random.Random(report_date.isoformat())
 
     crm = [
-        {"user_id": "user-1001", "customer_name": "Иван Петров",
+        {"user_id": "user1", "customer_name": "Иван Петров",
          "customer_email": "ivan.petrov@example.com",
          "prosthesis_ids": ["prosthesis-501"]},
-        {"user_id": "user-1002", "customer_name": "Мария Смирнова",
+        {"user_id": "user2", "customer_name": "Мария Смирнова",
          "customer_email": "maria.smirnova@example.com",
          "prosthesis_ids": ["prosthesis-502", "prosthesis-503"]},
-        {"user_id": "user-1003", "customer_name": "Алексей Иванов",
+        {"user_id": "user3", "customer_name": "Алексей Иванов",
          "customer_email": "alexey.ivanov@example.com",
          "prosthesis_ids": ["prosthesis-504"]},
     ]
@@ -118,12 +117,10 @@ def transform_data(report_date, crm, telemetry):
 
 # Определяем DAG
 with DAG('bionicpro_prosthesis_daily_report',
-         description="Демо ETL CRM + телеметрия -> ClickHouse",
          start_date=days_ago(1),
          schedule_interval='@daily',
          catchup=False,
-         max_active_runs=1,
-         tags=["bionicpro", "etl", "clickhouse", "mvp"]) as dag:
+         max_active_runs=1) as dag:
 
     # Создаём таблицу в ClickHouse
     create_table = SQLExecuteQueryOperator(

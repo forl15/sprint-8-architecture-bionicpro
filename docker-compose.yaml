@@ -70,6 +70,25 @@ services:
       REACT_APP_KEYCLOAK_REALM: reports-realm
       REACT_APP_KEYCLOAK_CLIENT_ID: reports-frontend
 
+  reports-api:
+    build:
+      context: ./reports
+    environment:
+      CLICKHOUSE_URL: jdbc:clickhouse://clickhouse:8123
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: clickhouse
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/realms/reports-realm/protocol/openid-connect/certs
+    ports:
+      - "8000:8000"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    networks:
+      - default
+      - bionicpro
+
   postgres:
     image: postgres:16.0
     volumes:
@@ -207,4 +226,5 @@ services:
       - bionicpro
 
 networks:
+  default:
   bionicpro:
